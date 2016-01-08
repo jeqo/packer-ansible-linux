@@ -1,14 +1,24 @@
 {
   "variables": {
+    "name": "oracle-linux-6",
     "iso_location": "iso",
-    "harddisk_size": "50960",
-    "vm_name": "oracle-linux-6",
-    "user_home": "{{env `HOME`}}"
+    "harddisk_size": "80000",
+    "user_home": "{{env `HOME`}}",
+
+    "docker_user": "jeqo",
+    "atlas_user": "jeqo",
+    "atlas_token": "{{env `ATLAS_TOKEN`}}",
+
+    "version": "6.7",
+    "timestamp": "{{isotime \"20060102150405\"}}"
   },
+
   "builders": [{
-    "vm_name": "{{user `vm_name`}}",
-    "output_directory": "{{user `user_home`}}/boxes/{{user `vm_name`}}",
+    "name": "virtualbox",
     "type": "virtualbox-iso",
+
+    "vm_name": "{{user `name`}}",
+    "output_directory": "{{user `user_home`}}/boxes/{{user `atlas_user`}}/{{user `name`}}",
     "virtualbox_version_file": ".vbox_version",
     "headless": false,
 
@@ -40,17 +50,109 @@
     ],
 
     "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p"
+  },{
+    "type": "docker",
+
+    "image": "oraclelinux:6.7",
+    "commit": "true"
   }],
+
   "provisioners": [{
     "type": "shell",
-    "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+
+    "only": ["virtualbox"],
+
     "scripts": [
       "scripts/common/sshd.sh",
       "scripts/common/networking.sh",
       "scripts/common/vagrant.sh",
       "scripts/common/vmtools.sh",
-      "scripts/common/cleanup.sh",
-      "scripts/common/minimize.sh"
-    ]
-  }]
+      "scripts/common/cleanup.sh"
+    ],
+    "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+  }, {
+    "type": "shell",
+    "scripts": [
+      "scripts/common/provisioner.sh"
+    ],
+    "override": {
+      "virtualbox": {
+        "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+      }
+    }
+  }, {
+    "type": "shell",
+
+    "only": ["virtualbox"],
+
+    "inline": [
+      "dd if=/dev/zero of=/EMPTY bs=1M",
+      "rm -f /EMPTY"
+    ],
+
+    "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+  }, {
+    "type": "shell",
+    "inline": [
+      "rm -rf /var/lib/yum/history/* /tmp/* /var/tmp/*"
+    ],
+    "override": {
+      "virtualbox": {
+        "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+      }
+    }
+  }],
+
+  "post-processors": [
+    [{
+      "type": "vagrant",
+
+      "only": ["virtualbox"],
+
+      "output": "{{user `user_home`}}/boxes/{{user `atlas_user`}}/{{user `name`}}/{{user `name`}}.box",
+      "compression_level": 9,
+      "keep_input_artifact": true
+    }, {
+      "type": "atlas",
+
+      "only": ["virtualbox"],
+
+      "token": "{{user `atlas_token`}}",
+
+      "artifact": "{{user `atlas_user`}}/{{user `name`}}",
+      "artifact_type": "vagrant.box",
+      "metadata": {
+        "created_at": "{{timestamp}}",
+        "provider": "virtualbox",
+        "version": "{{user `version`}}.{{user `timestamp`}}"
+      }
+    }], [{
+      "type": "docker-tag",
+
+      "only": ["docker"],
+
+      "repository": "{{user `docker_user`}}/{{user `name`}}",
+      "tag": "{{user `version`}}.{{user `timestamp`}}"
+    },{
+      "type": "docker-tag",
+
+      "only": ["docker"],
+
+      "repository": "{{user `docker_user`}}/{{user `name`}}",
+      "tag": "{{user `version`}}",
+      "force": true
+    },{
+      "type": "docker-tag",
+
+      "only": ["docker"],
+
+      "repository": "{{user `docker_user`}}/{{user `name`}}",
+      "tag": "latest",
+      "force": true
+    }, {
+      "type": "docker-push",
+
+      "only": ["docker"]
+    }]
+  ]
 }
