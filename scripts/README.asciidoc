@@ -12,6 +12,8 @@ It contains Shell scripts used by Packer provisioning.
 
 * sshd.sh: Configure SSH local access.
 
+* provisioner.sh: Configure Ansible and base packages.
+
 * vagrant.sh: Creates vagrant user.
 
 * vmtools.sh: Install and configure VM provider tools.
