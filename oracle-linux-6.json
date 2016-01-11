@@ -75,6 +75,9 @@
     "scripts": [
       "scripts/common/provisioner.sh"
     ],
+    "environment_vars": [
+      "EPEL_REPO=http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
+    ],
     "override": {
       "virtualbox": {
         "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"

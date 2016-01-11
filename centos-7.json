@@ -62,14 +62,6 @@
   "provisioners": [{
     "type": "shell",
 
-    "only": ["docker"],
-
-    "inline": [
-      "yum clean all -y && yum swap fakesystemd systemd -y"
-    ]
-  }, {
-    "type": "shell",
-
     "only": ["virtualbox"],
 
     "scripts": [
@@ -84,6 +76,9 @@
     "type": "shell",
     "scripts": [
       "scripts/common/provisioner.sh"
+    ],
+    "environment_vars": [
+      "EPEL_REPO=http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm"
     ],
     "override": {
       "virtualbox": {
