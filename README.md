@@ -1,7 +1,7 @@
-Oracle Linux Provisioning
-============================
+Packer Linux
+============
 
-Oracle Linux Provisioning repository based on the following tools:
+Packer Linux project build images to use the following tools:
 
 - [Packer](https://packer.io/): Machine/Container image builder
 
@@ -26,14 +26,25 @@ VirtualBox provider.
 
 - [Docker Hub](https://hub.docker.com/): Here are stored Docker images.
 
-Versions
---------
+OS and Versions
+---------------
 
-- **oracle-linux-6**
+- Centos
 
-  - Atlas: [https://atlas.hashicorp.com/jeqo/boxes/oracle-linux-6](https://atlas.hashicorp.com/jeqo/boxes/oracle-linux-6)
+  - **centos-7**
 
-  - Docker Hub: [https://hub.docker.com/r/jeqo/oracle-linux-6/](https://hub.docker.com/r/jeqo/oracle-linux-6/)
+    - Atlas: [https://atlas.hashicorp.com/jeqo/boxes/centos-7](https://atlas.hashicorp.com/jeqo/boxes/centos-7)
+
+    - Docker Hub: [https://hub.docker.com/r/jeqo/centos-7/](https://hub.docker.com/r/jeqo/centos-7/)
+
+
+- Oracle Linux
+
+  - **oracle-linux-6**
+
+    - Atlas: [https://atlas.hashicorp.com/jeqo/boxes/oracle-linux-6](https://atlas.hashicorp.com/jeqo/boxes/oracle-linux-6)
+
+    - Docker Hub: [https://hub.docker.com/r/jeqo/oracle-linux-6/](https://hub.docker.com/r/jeqo/oracle-linux-6/)
 
 Directory Structure
 -------------------

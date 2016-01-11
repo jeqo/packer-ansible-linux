@@ -1,6 +1,6 @@
 {
   "variables": {
-    "name": "oracle-linux-6",
+    "name": "centos-7",
     "iso_location": "iso",
     "harddisk_size": "80000",
     "user_home": "{{env `HOME`}}",
@@ -9,7 +9,7 @@
     "atlas_user": "jeqo",
     "atlas_token": "{{env `ATLAS_TOKEN`}}",
 
-    "version": "6.7",
+    "version": "7.1",
     "timestamp": "{{isotime \"20060102150405\"}}"
   },
 
@@ -22,30 +22,32 @@
     "virtualbox_version_file": ".vbox_version",
     "headless": false,
 
-    "guest_os_type": "Oracle_64",
+    "guest_os_type": "RedHat_64",
 
     "hard_drive_interface": "sata",
     "disk_size": "{{user `harddisk_size`}}",
 
-    "iso_url": "{{user `iso_location`}}/OracleLinux-R6-U7-Server-x86_64-dvd.iso",
-    "iso_checksum": "5871e01fc4c90d7c976c133758bba46d4153689c086d4fe03cbf3295b457f3a7",
+    "iso_url": "{{user `iso_location`}}/CentOS-7-x86_64-DVD-1503-01.iso",
+    "iso_checksum": "85bcf62462fb678adc0cec159bf8b39ab5515404bc3828c432f743a1b0b30157",
     "iso_checksum_type": "sha256",
 
     "boot_command": [
-      "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ol-6.7/ks.cfg<enter><wait>"
+      "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos-7.1/ks.cfg<enter><wait>"
     ],
     "boot_wait": "12s",
 
     "http_directory": "http",
     "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
 
+    "communicator": "ssh",
+    "ssh_pty": "true",
     "ssh_username": "vagrant",
     "ssh_password": "vagrant",
     "ssh_port": 22,
     "ssh_wait_timeout": "10000s",
 
     "vboxmanage": [
-      ["modifyvm", "{{.Name}}", "--memory", "2048"],
+      ["modifyvm", "{{.Name}}", "--memory", "512"],
       ["modifyvm", "{{.Name}}", "--cpus", "1"]
     ],
 
@@ -53,11 +55,19 @@
   },{
     "type": "docker",
 
-    "image": "oraclelinux:6.7",
+    "image": "centos:7.1.1503",
     "commit": "true"
   }],
 
   "provisioners": [{
+    "type": "shell",
+
+    "only": ["docker"],
+
+    "inline": [
+      "yum clean all -y && yum swap fakesystemd systemd -y"
+    ]
+  }, {
     "type": "shell",
 
     "only": ["virtualbox"],
