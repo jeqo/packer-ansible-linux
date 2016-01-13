@@ -1,7 +1,7 @@
 #!/bin/sh -eux
 
 # Remove development and kernel source packages
-yum -y remove gcc cpp kernel-devel kernel-headers perl;
+# yum -y remove gcc cpp kernel-devel kernel-headers perl;
 yum -y clean all;
 
 # Clean up network interface persistence
