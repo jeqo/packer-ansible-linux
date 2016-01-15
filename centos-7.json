@@ -69,9 +69,11 @@
 
     "region": "us-east-1",
     "source_ami": "ami-61bbf104",
-    "instance_type": "t1.micro",
-    "ssh_username": "root",
-    "ami_name": "{{user `name`}} {{timestamp}}"
+    "instance_type": "t2.micro",
+    "ssh_username": "centos",
+    "ami_name": "{{user `name`}} {{timestamp}}",
+
+    "ssh_pty" : true
   }],
 
   "provisioners": [{
@@ -98,6 +100,9 @@
     "override": {
       "virtualbox": {
         "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+      },
+      "aws": {
+        "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'"
       }
     }
   }, {
@@ -119,6 +124,9 @@
     "override": {
       "virtualbox": {
         "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+      },
+      "aws": {
+        "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'"
       }
     }
   }],
@@ -144,6 +152,19 @@
       "metadata": {
         "created_at": "{{timestamp}}",
         "provider": "virtualbox",
+        "version": "{{user `version`}}.{{user `timestamp`}}"
+      }
+    }, {
+      "type": "atlas",
+
+      "only": ["aws"],
+
+      "token": "{{user `atlas_token`}}",
+
+      "artifact": "{{user `atlas_user`}}/{{user `name`}}",
+      "artifact_type": "amazon.image",
+      "metadata": {
+        "created_at": "{{timestamp}}",
         "version": "{{user `version`}}.{{user `timestamp`}}"
       }
     }], [{
@@ -173,21 +194,7 @@
       "type": "docker-push",
 
       "only": ["docker"]
-    }],
-    {
-      "type": "atlas",
-
-      "only": ["aws"],
-
-      "token": "{{user `atlas_token`}}",
-
-      "artifact": "{{user `atlas_user`}}/{{user `name`}}",
-      "artifact_type": "amazon.image",
-      "metadata": {
-        "created_at": "{{timestamp}}",
-        "version": "{{user `version`}}.{{user `timestamp`}}"
-      }
-    }
+    }]
   ],
 
   "push": {
