@@ -157,5 +157,10 @@
 
       "only": ["docker"]
     }]
-  ]
+  ],
+
+  "push": {
+    "name": "{{user `atlas_user`}}/{{user `name`}}",
+    "token": "{{user `atlas_token`}}"
+  }
 }

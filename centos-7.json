@@ -1,15 +1,17 @@
 {
   "variables": {
     "name": "centos-7",
-    "iso_location": "iso",
+    "iso_location": "{{env `ISO_LOCATION`}}",
     "harddisk_size": "80000",
     "user_home": "{{env `HOME`}}",
 
     "docker_user": "jeqo",
     "atlas_user": "jeqo",
     "atlas_token": "{{env `ATLAS_TOKEN`}}",
+    "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
+    "aws_secret_key": "{{env `ÀWS_SECRET_KEY`}}",
 
-    "version": "7.1",
+    "version": "7",
     "timestamp": "{{isotime \"20060102150405\"}}"
   },
 
@@ -27,7 +29,7 @@
     "hard_drive_interface": "sata",
     "disk_size": "{{user `harddisk_size`}}",
 
-    "iso_url": "{{user `iso_location`}}/CentOS-7-x86_64-DVD-1503-01.iso",
+    "iso_url": "{{user `iso_location`}}/CentOS-7-x86_64-DVD-1511.iso",
     "iso_checksum": "85bcf62462fb678adc0cec159bf8b39ab5515404bc3828c432f743a1b0b30157",
     "iso_checksum_type": "sha256",
 
@@ -55,8 +57,21 @@
   },{
     "type": "docker",
 
-    "image": "centos:7.1.1503",
+    "image": "centos:centos7",
     "commit": "true"
+  },
+  {
+    "name": "aws",
+    "type": "amazon-ebs",
+
+    "access_key": "{{user `aws_access_key`}}",
+    "secret_key": "{{user `aws_secret_key`}}",
+
+    "region": "us-east-1",
+    "source_ami": "ami-61bbf104",
+    "instance_type": "t1.micro",
+    "ssh_username": "root",
+    "ami_name": "{{user `name`}} {{timestamp}}"
   }],
 
   "provisioners": [{
@@ -158,6 +173,25 @@
       "type": "docker-push",
 
       "only": ["docker"]
-    }]
-  ]
+    }],
+    {
+      "type": "atlas",
+
+      "only": ["aws"],
+
+      "token": "{{user `atlas_token`}}",
+
+      "artifact": "{{user `atlas_user`}}/{{user `name`}}",
+      "artifact_type": "amazon.image",
+      "metadata": {
+        "created_at": "{{timestamp}}",
+        "version": "{{user `version`}}.{{user `timestamp`}}"
+      }
+    }
+  ],
+
+  "push": {
+    "name": "{{user `atlas_user`}}/{{user `name`}}",
+    "token": "{{user `atlas_token`}}"
+  }
 }
