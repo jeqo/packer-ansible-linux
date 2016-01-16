@@ -1,6 +1,6 @@
 {
   "variables": {
-    "name": "oracle-linux-6",
+    "name": "oraclelinux6-ansible",
     "iso_location": "iso",
     "harddisk_size": "80000",
     "user_home": "{{env `HOME`}}",

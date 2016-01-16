@@ -1,13 +1,16 @@
 {
   "variables": {
-    "name": "centos-7",
+    "name": "centos7-ansible",
+
     "iso_location": "{{env `ISO_LOCATION`}}",
     "harddisk_size": "80000",
     "user_home": "{{env `HOME`}}",
 
     "docker_user": "jeqo",
+
     "atlas_user": "jeqo",
     "atlas_token": "{{env `ATLAS_TOKEN`}}",
+
     "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
     "aws_secret_key": "{{env `ÀWS_SECRET_KEY`}}",
 
@@ -30,7 +33,7 @@
     "disk_size": "{{user `harddisk_size`}}",
 
     "iso_url": "{{user `iso_location`}}/CentOS-7-x86_64-DVD-1511.iso",
-    "iso_checksum": "85bcf62462fb678adc0cec159bf8b39ab5515404bc3828c432f743a1b0b30157",
+    "iso_checksum": "907e5755f824c5848b9c8efbb484f3cd945e93faa024bad6ba875226f9683b16",
     "iso_checksum_type": "sha256",
 
     "boot_command": [
@@ -54,13 +57,12 @@
     ],
 
     "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p"
-  },{
+  }, {
     "type": "docker",
 
     "image": "centos:centos7",
     "commit": "true"
-  },
-  {
+  }, {
     "name": "aws",
     "type": "amazon-ebs",
 
@@ -92,7 +94,8 @@
   }, {
     "type": "shell",
     "scripts": [
-      "scripts/common/provisioner.sh"
+      "scripts/common/packages.sh",
+      "scripts/common/ansible.sh"
     ],
     "environment_vars": [
       "EPEL_REPO=http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm"
@@ -133,6 +136,51 @@
 
   "post-processors": [
     [{
+      "type": "atlas",
+
+      "only": ["aws"],
+
+      "token": "{{user `atlas_token`}}",
+
+      "artifact": "{{user `atlas_user`}}/{{user `name`}}",
+      "artifact_type": "amazon.image",
+      "metadata": {
+        "created_at": "{{timestamp}}",
+        "version": "{{user `version`}}.{{user `timestamp`}}"
+      }
+    }, {
+      "type": "atlas",
+
+      "only": ["docker"],
+
+      "token": "{{user `atlas_token`}}",
+
+      "artifact": "{{user `atlas_user`}}/{{user `name`}}",
+      "artifact_type": "docker.image",
+      "metadata": {
+        "created_at": "{{timestamp}}",
+        "version": "{{user `version`}}.{{user `timestamp`}}",
+        "repository": "{{user `docker_user`}}/{{user `name`}}",
+        "tags": [
+          "{{user `version`}}.{{user `timestamp`}}",
+          "{{user `version`}}",
+          "latest"
+        ]
+      }
+    }, {
+      "type": "atlas",
+
+      "only": ["virtualbox"],
+
+      "token": "{{user `atlas_token`}}",
+
+      "artifact": "{{user `atlas_user`}}/{{user `name`}}",
+      "rtifact_type": "virtualbox.image",
+      "metadata": {
+        "created_at": "{{timestamp}}",
+        "version": "{{user `version`}}.{{user `timestamp`}}"
+      }
+    }], [{
       "type": "vagrant",
 
       "only": ["virtualbox"],
@@ -152,19 +200,6 @@
       "metadata": {
         "created_at": "{{timestamp}}",
         "provider": "virtualbox",
-        "version": "{{user `version`}}.{{user `timestamp`}}"
-      }
-    }, {
-      "type": "atlas",
-
-      "only": ["aws"],
-
-      "token": "{{user `atlas_token`}}",
-
-      "artifact": "{{user `atlas_user`}}/{{user `name`}}",
-      "artifact_type": "amazon.image",
-      "metadata": {
-        "created_at": "{{timestamp}}",
         "version": "{{user `version`}}.{{user `timestamp`}}"
       }
     }], [{
@@ -199,6 +234,11 @@
 
   "push": {
     "name": "{{user `atlas_user`}}/{{user `name`}}",
-    "token": "{{user `atlas_token`}}"
+    "token": "{{user `atlas_token`}}",
+    "include": [
+      "http/",
+      "scripts/"
+    ],
+    "vcs": false
   }
 }
