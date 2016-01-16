@@ -170,7 +170,7 @@
       "token": "{{user `atlas_token`}}",
 
       "artifact": "{{user `atlas_user`}}/{{user `name`}}",
-      "rtifact_type": "virtualbox.image",
+      "artifact_type": "virtualbox.image",
       "metadata": {
         "created_at": "{{timestamp}}",
         "version": "{{user `version`}}.{{user `timestamp`}}"
