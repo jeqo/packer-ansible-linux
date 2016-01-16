@@ -160,12 +160,7 @@
       "metadata": {
         "created_at": "{{timestamp}}",
         "version": "{{user `version`}}.{{user `timestamp`}}",
-        "repository": "{{user `docker_user`}}/{{user `name`}}",
-        "tags": [
-          "{{user `version`}}.{{user `timestamp`}}",
-          "{{user `version`}}",
-          "latest"
-        ]
+        "repository": "{{user `docker_user`}}/{{user `name`}}"
       }
     }, {
       "type": "atlas",
