@@ -1,6 +1,6 @@
 {
   "variables": {
-    "name": "oraclelinux6-ansible",
+    "name": "ol7-ansible",
     "iso_location": "iso",
     "harddisk_size": "80000",
     "user_home": "{{env `HOME`}}",
@@ -9,7 +9,7 @@
     "atlas_user": "jeqo",
     "atlas_token": "{{env `ATLAS_TOKEN`}}",
 
-    "version": "6.7",
+    "version": "7.2",
     "timestamp": "{{isotime \"20060102150405\"}}"
   },
 
@@ -27,12 +27,12 @@
     "hard_drive_interface": "sata",
     "disk_size": "{{user `harddisk_size`}}",
 
-    "iso_url": "{{user `iso_location`}}/OracleLinux-R6-U7-Server-x86_64-dvd.iso",
-    "iso_checksum": "5871e01fc4c90d7c976c133758bba46d4153689c086d4fe03cbf3295b457f3a7",
+    "iso_url": "{{user `iso_location`}}",
+    "iso_checksum": "e7778716ca8cfed0c9ce6e1f3752f4561d4110a333e1e86a26eb99ccdf1f3aa9",
     "iso_checksum_type": "sha256",
 
     "boot_command": [
-      "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ol-6.7/ks.cfg<enter><wait>"
+      "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ol-{{user `version`}}/ks.cfg<enter><wait>"
     ],
     "boot_wait": "12s",
 
@@ -45,7 +45,7 @@
     "ssh_wait_timeout": "10000s",
 
     "vboxmanage": [
-      ["modifyvm", "{{.Name}}", "--memory", "2048"],
+      ["modifyvm", "{{.Name}}", "--memory", "1024"],
       ["modifyvm", "{{.Name}}", "--cpus", "1"]
     ],
 
@@ -53,7 +53,7 @@
   },{
     "type": "docker",
 
-    "image": "oraclelinux:6.7",
+    "image": "oraclelinux:{{user `version`}}",
     "commit": "true"
   }],
 
@@ -63,20 +63,20 @@
     "only": ["virtualbox"],
 
     "scripts": [
-      "scripts/common/sshd.sh",
-      "scripts/common/networking.sh",
-      "scripts/common/vagrant.sh",
-      "scripts/common/vmtools.sh",
-      "scripts/common/cleanup.sh"
+      "scripts/sshd.sh",
+      "scripts/networking.sh",
+      "scripts/vagrant.sh",
+      "scripts/vmtools.sh",
+      "scripts/cleanup.sh"
     ],
     "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
   }, {
     "type": "shell",
     "scripts": [
-      "scripts/common/provisioner.sh"
+      "scripts/ansible.sh"
     ],
     "environment_vars": [
-      "EPEL_REPO=http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm"
+      "EPEL_REPO=http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm"
     ],
     "override": {
       "virtualbox": {
