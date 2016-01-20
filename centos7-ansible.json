@@ -13,6 +13,7 @@
 
     "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
     "aws_secret_key": "{{env `ÀWS_SECRET_KEY`}}",
+    "aws_source_ami": "ami-61bbf104",
 
     "version": "7",
     "timestamp": "{{isotime \"20060102150405\"}}"
@@ -70,7 +71,7 @@
     "secret_key": "{{user `aws_secret_key`}}",
 
     "region": "us-east-1",
-    "source_ami": "ami-61bbf104",
+    "source_ami": "{{user `aws_source_ami`}}",
     "instance_type": "t2.micro",
     "ssh_username": "centos",
     "ami_name": "{{user `name`}} {{timestamp}}",
