@@ -1,0 +1,183 @@
+{
+  "variables": {
+    "name": "ol7-ansible",
+    "iso_location": "iso",
+    "harddisk_size": "80000",
+    "user_home": "{{env `HOME`}}",
+
+    "docker_user": "jeqo",
+    "atlas_user": "jeqo",
+    "atlas_token": "{{env `ATLAS_TOKEN`}}",
+
+    "version": "7.2",
+    "timestamp": "{{isotime \"20060102150405\"}}"
+  },
+
+  "builders": [
+    {
+      "name": "virtualbox",
+      "type": "virtualbox-iso",
+
+      "vm_name": "{{user `name`}}",
+      "output_directory": "{{user `user_home`}}/boxes/{{user `atlas_user`}}/{{user `name`}}",
+      "virtualbox_version_file": ".vbox_version",
+      "headless": false,
+
+      "guest_os_type": "Oracle_64",
+
+      "hard_drive_interface": "sata",
+      "disk_size": "{{user `harddisk_size`}}",
+
+      "iso_url": "{{user `iso_location`}}",
+      "iso_checksum": "e7778716ca8cfed0c9ce6e1f3752f4561d4110a333e1e86a26eb99ccdf1f3aa9",
+      "iso_checksum_type": "sha256",
+
+      "boot_command": [
+        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ol-{{user `version`}}/ks.cfg<enter><wait>"
+      ],
+      "boot_wait": "12s",
+
+      "http_directory": "http",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "1024"],
+        ["modifyvm", "{{.Name}}", "--cpus", "1"]
+      ],
+
+      "shutdown_command": "echo 'vagrant'|sudo -S /sbin/halt -h -p"
+    },
+    {
+      "type": "docker",
+
+      "image": "oraclelinux:{{user `version`}}",
+      "commit": "true"
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "shell",
+
+      "only": ["virtualbox"],
+
+      "scripts": [
+        "scripts/common/sshd.sh",
+        "scripts/redhat/networking.sh",
+        "scripts/redhat/vagrant.sh",
+        "scripts/common/vmtools.sh",
+        "scripts/redhat/cleanup.sh"
+      ],
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    },
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/redhat/ansible.sh"
+      ],
+      "environment_vars": [
+        "EPEL_REPO=http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm"
+      ],
+      "override": {
+        "virtualbox": {
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+        }
+      }
+    },
+    {
+      "type": "shell",
+
+      "only": ["virtualbox"],
+
+      "inline": [
+        "dd if=/dev/zero of=/EMPTY bs=1M",
+        "rm -f /EMPTY"
+      ],
+
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "rm -rf /var/lib/yum/history/* /tmp/* /var/tmp/*"
+      ],
+      "override": {
+        "virtualbox": {
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
+        }
+      }
+    }
+  ],
+
+  "post-processors": [
+    [
+      {
+        "type": "vagrant",
+
+        "only": ["virtualbox"],
+
+        "output": "{{user `user_home`}}/boxes/{{user `atlas_user`}}/{{user `name`}}/{{user `name`}}.box",
+        "compression_level": 9,
+        "keep_input_artifact": true
+      },
+      {
+        "type": "atlas",
+
+        "only": ["virtualbox"],
+
+        "token": "{{user `atlas_token`}}",
+
+        "artifact": "{{user `atlas_user`}}/{{user `name`}}",
+        "artifact_type": "vagrant.box",
+        "metadata": {
+          "created_at": "{{timestamp}}",
+          "provider": "virtualbox",
+          "version": "{{user `version`}}.{{user `timestamp`}}"
+        }
+      }
+    ],
+    [
+      {
+        "type": "docker-tag",
+
+        "only": ["docker"],
+
+        "repository": "{{user `docker_user`}}/{{user `name`}}",
+        "tag": "{{user `version`}}.{{user `timestamp`}}"
+      },
+      {
+        "type": "docker-tag",
+
+        "only": ["docker"],
+
+        "repository": "{{user `docker_user`}}/{{user `name`}}",
+        "tag": "{{user `version`}}",
+        "force": true
+      },
+      {
+        "type": "docker-tag",
+
+        "only": ["docker"],
+
+        "repository": "{{user `docker_user`}}/{{user `name`}}",
+        "tag": "latest",
+        "force": true
+      },
+      {
+        "type": "docker-push",
+
+        "only": ["docker"]
+      }
+    ]
+  ],
+
+  "push": {
+    "name": "{{user `atlas_user`}}/{{user `name`}}",
+    "token": "{{user `atlas_token`}}"
+  }
+}
