@@ -1,28 +1,37 @@
 {
   "variables": {
-    "box_basename": "ubuntu-15.10",
-    "build_timestamp": "{{isotime \"20060102150405\"}}",
-    "git_revision": "__unknown_git_revision__",
-    "headless": "",
-    "http_proxy": "{{env `http_proxy`}}",
-    "https_proxy": "{{env `https_proxy`}}",
-    "iso_checksum": "86aa35a986eba6e5ad30e3d486d57efe6803ae7ea4859b0216953e9e62871131",
+    "name": "ansible-ubuntu15",
+
+    "headless": "false",
+
+    "iso_url": "iso/ubuntu-15.10-server-amd64.iso",
+    "iso_checksum": "",
     "iso_checksum_type": "sha256",
-    "iso_name": "ubuntu-15.10-server-amd64.iso",
-    "metadata": "floppy/dummy_metadata.json",
-    "mirror": "http://releases.ubuntu.com",
-    "name": "ubuntu-15.10",
-    "mirror_directory": "15.10",
-    "no_proxy": "{{env `no_proxy`}}",
+
     "preseed_path": "ubuntu-15.10/preseed.cfg",
-    "template": "ubuntu-15.10-amd64",
-    "version": "2.1.TIMESTAMP"
+
+    "user_home": "{{env `HOME`}}",
+
+    "docker_user": "",
+
+    "atlas_user": "",
+    "atlas_token": "{{env `ATLAS_TOKEN`}}",
+
+    "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
+    "aws_secret_key": "{{env `ÀWS_SECRET_KEY`}}",
+    "aws_source_ami": "ami-fce3c696",
+
+    "version": "15.10",
+
+    "timestamp": "{{isotime \"20060102150405\"}}"
   },
 
   "builders": [
     {
       "name": "virtualbox",
       "type": "virtualbox-iso",
+
+      "vm_name": "{{user `name`}}",
 
       "boot_command": [
         "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
@@ -60,11 +69,11 @@
       "headless": "{{ user `headless` }}",
 
       "http_directory": "http",
+      "iso_url": "{{user `iso_url`}}",
       "iso_checksum": "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
-      "iso_url": "{{user `mirror`}}/{{user `mirror_directory`}}/{{user `iso_name`}}",
 
-      "output_directory": "packer-{{user `template`}}-virtualbox",
+      "output_directory": "{{user `user_home`}}/boxes/{{user `atlas_user`}}/{{user `name`}}",
 
       "shutdown_command": "echo 'vagrant' | sudo -S shutdown -P now",
 
@@ -77,22 +86,13 @@
         ["modifyvm", "{{.Name}}", "--memory", "512"],
         ["modifyvm", "{{.Name}}", "--cpus", "1"]
       ],
-      "virtualbox_version_file": ".vbox_version",
-
-      "vm_name": "{{ user `template` }}"
+      "virtualbox_version_file": ".vbox_version"
     }
   ],
 
   "provisioners": [
     {
-      "environment_vars": [
-        "HOME_DIR=/home/vagrant",
-        "http_proxy={{user `http_proxy`}}",
-        "https_proxy={{user `https_proxy`}}",
-        "no_proxy={{user `no_proxy`}}"
-      ],
-
-      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
+      "type": "shell",
 
       "scripts": [
         "scripts/ubuntu/update.sh",
@@ -106,7 +106,7 @@
         "scripts/common/minimize.sh"
       ],
 
-      "type": "shell"
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'"
     }
   ]
 }

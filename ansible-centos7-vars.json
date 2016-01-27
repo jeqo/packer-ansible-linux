@@ -1,0 +1,13 @@
+{
+  "iso_url": "/home/jeqo/iso/CentOS-7-x86_64-DVD-1511.iso",
+  "iso_checksum": "907e5755f824c5848b9c8efbb484f3cd945e93faa024bad6ba875226f9683b16",
+  "iso_checksum_type": "sha256",
+
+  "headless": "false",
+
+  "aws_source_ami": "ami-61bbf104",
+
+  "docker_user": "jeqo",
+
+  "atlas_user": "jeqo"
+}

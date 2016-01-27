@@ -1,5 +1,5 @@
 #!/bin/bash -eux
-
+HOME_DIR="${HOME_DIR:-/home/vagrant}";
 pubkey_url="https://raw.githubusercontent.com/mitchellh/vagrant/master/keys/vagrant.pub";
 mkdir -p $HOME_DIR/.ssh;
 if command -v wget >/dev/null 2>&1; then

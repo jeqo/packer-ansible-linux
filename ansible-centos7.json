@@ -1,21 +1,27 @@
 {
   "variables": {
-    "name": "centos7-ansible",
+    "name": "ansible-centos7",
+    "version": "7",
 
-    "iso_location": "{{env `ISO_LOCATION`}}",
-    "harddisk_size": "80000",
+    "iso_url": "iso/CentOS-7-x86_64-DVD-1511.iso",
+    "iso_checksum": "",
+    "iso_checksum_type": "sha256",
+
+    "headless": "false",
+
+    "ks_path": "centos-7.1/ks.cfg",
+
     "user_home": "{{env `HOME`}}",
 
-    "docker_user": "jeqo",
+    "docker_user": "",
 
-    "atlas_user": "jeqo",
+    "atlas_user": "",
     "atlas_token": "{{env `ATLAS_TOKEN`}}",
 
     "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
     "aws_secret_key": "{{env `ÀWS_SECRET_KEY`}}",
     "aws_source_ami": "ami-61bbf104",
 
-    "version": "7",
     "timestamp": "{{isotime \"20060102150405\"}}"
   },
 
@@ -27,19 +33,19 @@
       "vm_name": "{{user `name`}}",
       "output_directory": "{{user `user_home`}}/boxes/{{user `atlas_user`}}/{{user `name`}}",
       "virtualbox_version_file": ".vbox_version",
-      "headless": false,
+      "headless": "{{user `headless`}}",
 
       "guest_os_type": "RedHat_64",
 
       "hard_drive_interface": "sata",
-      "disk_size": "{{user `harddisk_size`}}",
+      "disk_size": "80000",
 
-      "iso_url": "{{user `iso_location`}}/CentOS-7-x86_64-DVD-1511.iso",
-      "iso_checksum": "907e5755f824c5848b9c8efbb484f3cd945e93faa024bad6ba875226f9683b16",
-      "iso_checksum_type": "sha256",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
 
       "boot_command": [
-        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/centos-7.1/ks.cfg<enter><wait>"
+        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `ks_path`}}<enter><wait>"
       ],
       "boot_wait": "12s",
 
@@ -193,7 +199,7 @@
 
         "only": ["virtualbox"],
 
-        "output": "{{user `user_home`}}/boxes/{{user `atlas_user`}}/{{user `name`}}/{{user `name`}}.box",
+        "output": "{{user `user_home`}}/boxes/virtualbox/{{user `atlas_user`}}/{{user `name`}}/{{user `name`}}.box",
         "compression_level": 9,
         "keep_input_artifact": true
       },

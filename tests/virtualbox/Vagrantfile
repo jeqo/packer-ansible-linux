@@ -1,0 +1,11 @@
+Vagrant.configure(2) do |config|
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "main.yml"
+  end
+
+  config.vm.define "test01" do |test01|
+    test01.vm.box = "jeqo/ansible-centos7"
+    test01.vm.box_url = "/home/jeqo/boxes/jeqo/ansible-centos7/ansible-centos7.box"
+  end
+end
