@@ -1,0 +1,12 @@
+{
+  "iso_url": "/home/jeqo/iso/OracleLinux-R7-U2-Server-x86_64-dvd.iso",
+  "iso_checksum": "e7778716ca8cfed0c9ce6e1f3752f4561d4110a333e1e86a26eb99ccdf1f3aa9",
+  "iso_checksum_type": "sha256",
+
+  "headless": "false",
+
+  "docker_user": "jeqo",
+  "docker_source_image": "centos:centos7",
+
+  "atlas_user": "jeqo"
+}

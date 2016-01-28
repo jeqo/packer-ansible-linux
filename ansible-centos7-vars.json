@@ -8,6 +8,7 @@
   "aws_source_ami": "ami-61bbf104",
 
   "docker_user": "jeqo",
+  "docker_source_image": "centos:centos7",
 
   "atlas_user": "jeqo"
 }

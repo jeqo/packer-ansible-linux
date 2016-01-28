@@ -1,15 +1,24 @@
 {
   "variables": {
-    "name": "ol7-ansible",
-    "iso_location": "iso",
-    "harddisk_size": "80000",
+    "name": "ansible-ol7",
+    "version": "7",
+
+    "iso_url": "iso/OracleLinux-R7-U2-Server-x86_64-dvd.iso",
+    "iso_checksum": "",
+    "iso_checksum_type": "sha256",
+
+    "headless": "false",
+
+    "ks_path": "ol-7.2/ks.cfg",
+
     "user_home": "{{env `HOME`}}",
 
-    "docker_user": "jeqo",
-    "atlas_user": "jeqo",
+    "docker_user": "",
+    "docker_source_image": "",
+
+    "atlas_user": "",
     "atlas_token": "{{env `ATLAS_TOKEN`}}",
 
-    "version": "7.2",
     "timestamp": "{{isotime \"20060102150405\"}}"
   },
 
@@ -21,19 +30,19 @@
       "vm_name": "{{user `name`}}",
       "output_directory": "{{user `user_home`}}/boxes/{{user `atlas_user`}}/{{user `name`}}",
       "virtualbox_version_file": ".vbox_version",
-      "headless": false,
+      "headless": "{{user `headless`}}",
 
       "guest_os_type": "Oracle_64",
 
       "hard_drive_interface": "sata",
-      "disk_size": "{{user `harddisk_size`}}",
+      "disk_size": "80000",
 
-      "iso_url": "{{user `iso_location`}}",
-      "iso_checksum": "e7778716ca8cfed0c9ce6e1f3752f4561d4110a333e1e86a26eb99ccdf1f3aa9",
-      "iso_checksum_type": "sha256",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
 
       "boot_command": [
-        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ol-{{user `version`}}/ks.cfg<enter><wait>"
+        "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `ks_path`}}<enter><wait>"
       ],
       "boot_wait": "12s",
 
@@ -55,7 +64,7 @@
     {
       "type": "docker",
 
-      "image": "oraclelinux:{{user `version`}}",
+      "image": "{{user `docker_source_image`}}",
       "commit": "true"
     }
   ],
@@ -178,6 +187,11 @@
 
   "push": {
     "name": "{{user `atlas_user`}}/{{user `name`}}",
-    "token": "{{user `atlas_token`}}"
+    "token": "{{user `atlas_token`}}",
+    "include": [
+      "http/",
+      "scripts/"
+    ],
+    "vcs": false
   }
 }

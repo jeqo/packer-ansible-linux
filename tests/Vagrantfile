@@ -1,0 +1,23 @@
+Vagrant.configure(2) do |config|
+
+  # error with ansible 2.0
+  # config.vm.provision "ansible_local" do |ansible|
+  #   ansible.playbook = "main.yml"
+  # end
+  # config.vm.provision "shell", inline: "ansible-galaxy -f -p ./roles -r roles.yml"
+  config.vm.provision "shell",
+    inline: "cd /vagrant && ansible-playbook main.yml -c local"
+
+  config.vm.define "test01" do |test01|
+    test01.vm.box = "jeqo/ansible-centos7"
+  end
+
+  config.vm.define "test02" do |test02|
+    test02.ssh.pty = true
+    test02.vm.box = "jeqo/ansible-ubuntu14"
+  end
+
+  config.vm.define "test03" do |test03|
+    test03.vm.box = "jeqo/ansible-ol7"
+  end
+end

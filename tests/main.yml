@@ -4,4 +4,4 @@
   hosts: 127.0.0.1
   tasks:
     - debug:
-        msg: "ansible {{ ansible_product_version }} is installed"
+        msg: "ansible is installed"
