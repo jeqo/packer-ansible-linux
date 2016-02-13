@@ -2,6 +2,9 @@
 
 major_version="`lsb_release -r | awk '{print $2}' | awk -F. '{print $1}'`";
 
+echo "%vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+sed -i "s/^[^#].*requiretty/#Defaults requiretty/" /etc/sudoers
+
 if [ ! -z "$major_version" -a "$major_version" -lt 12 ]; then
     sed -i -e '/Defaults\s\+env_reset/a Defaults\texempt_group=admin' /etc/sudoers;
     sed -i -e 's/%admin\s*ALL=(ALL) ALL/%admin\tALL=(ALL) NOPASSWD:ALL/g' /etc/sudoers;
