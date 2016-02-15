@@ -6,7 +6,7 @@
   "headless": "false",
 
   "docker_user": "jeqo",
-  "docker_source_image": "centos:centos7",
+  "docker_source_image": "oraclelinux:7.2",
 
   "atlas_user": "jeqo"
 }
