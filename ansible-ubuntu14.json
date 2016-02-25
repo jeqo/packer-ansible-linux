@@ -22,7 +22,7 @@
     "aws_secret_key": "{{env `ÀWS_SECRET_KEY`}}",
     "aws_source_ami": "ami-fce3c696",
 
-    "version": "15.10",
+    "version": "14.04",
 
     "timestamp": "{{isotime \"20060102150405\"}}"
   },
