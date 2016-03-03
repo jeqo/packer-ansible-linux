@@ -1,17 +1,14 @@
 {
   "variables": {
-    "name": "ansible-centos7",
-    "version": "7",
+    "image_name": "ansible-centos7",
 
-    "iso_url": "iso/CentOS-7-x86_64-DVD-1511.iso",
-    "iso_checksum": "",
-    "iso_checksum_type": "sha256",
-
-    "headless": "false",
+    "virtualbox_iso_url": "iso/CentOS-7-x86_64-DVD-1511.iso",
+    "virtualbox_iso_checksum": "",
+    "virtualbox_iso_checksum_type": "sha256",
+    "virtualbox_output_directory": "",
+    "virtualbox_headless": "false",
 
     "ks_path": "centos-7.1/ks.cfg",
-
-    "user_home": "{{env `HOME`}}",
 
     "docker_user": "",
     "docker_source_image": "",
@@ -19,10 +16,9 @@
     "atlas_user": "",
     "atlas_token": "{{env `ATLAS_TOKEN`}}",
 
-    "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
-    "aws_secret_key": "{{env `ÀWS_SECRET_KEY`}}",
-    "aws_source_ami": "ami-61bbf104",
+    "vagrant_output_path": "",
 
+    "version": "7",
     "timestamp": "{{isotime \"20060102150405\"}}"
   },
 
@@ -31,23 +27,24 @@
       "name": "virtualbox",
       "type": "virtualbox-iso",
 
-      "vm_name": "{{user `name`}}",
-      "output_directory": "{{user `user_home`}}/boxes/{{user `atlas_user`}}/{{user `name`}}",
+      "vm_name": "{{user `image_name`}}",
+      "output_directory": "{{user `virtualbox_output_directory`}}",
       "virtualbox_version_file": ".vbox_version",
-      "headless": "{{user `headless`}}",
+      "headless": "{{user `virtualbox_headless`}}",
 
       "guest_os_type": "RedHat_64",
 
       "hard_drive_interface": "sata",
       "disk_size": "80000",
 
-      "iso_url": "{{user `iso_url`}}",
-      "iso_checksum": "{{user `iso_checksum`}}",
-      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_url": "{{user `virtualbox_iso_url`}}",
+      "iso_checksum": "{{user `virtualbox_iso_checksum`}}",
+      "iso_checksum_type": "{{user `virtualbox_iso_checksum_type`}}",
 
       "boot_command": [
         "<tab> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `ks_path`}}<enter><wait>"
       ],
+
       "boot_wait": "12s",
 
       "http_directory": "http",
@@ -72,21 +69,6 @@
 
       "image": "{{user `docker_source_image`}}",
       "commit": "true"
-    },
-    {
-      "name": "aws",
-      "type": "amazon-ebs",
-
-      "access_key": "{{user `aws_access_key`}}",
-      "secret_key": "{{user `aws_secret_key`}}",
-
-      "region": "us-east-1",
-      "source_ami": "{{user `aws_source_ami`}}",
-      "instance_type": "t2.micro",
-      "ssh_username": "centos",
-      "ami_name": "{{user `name`}} {{timestamp}}",
-
-      "ssh_pty" : true
     }
   ],
 
@@ -116,9 +98,6 @@
       "override": {
         "virtualbox": {
           "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'"
-        },
-        "aws": {
-          "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'"
         }
       }
     },
@@ -155,42 +134,16 @@
       {
         "type": "atlas",
 
-        "only": ["aws"],
-
-        "token": "{{user `atlas_token`}}",
-
-        "artifact": "{{user `atlas_user`}}/{{user `name`}}",
-        "artifact_type": "amazon.image",
-        "metadata": {
-          "created_at": "{{timestamp}}",
-          "version": "{{user `version`}}.{{user `timestamp`}}"
-        }
-      }, {
-        "type": "atlas",
-
         "only": ["docker"],
 
         "token": "{{user `atlas_token`}}",
 
-        "artifact": "{{user `atlas_user`}}/{{user `name`}}",
+        "artifact": "{{user `atlas_user`}}/{{user `image_name`}}",
         "artifact_type": "docker.image",
         "metadata": {
           "created_at": "{{timestamp}}",
           "version": "{{user `version`}}.{{user `timestamp`}}",
-          "repository": "{{user `docker_user`}}/{{user `name`}}"
-        }
-      }, {
-        "type": "atlas",
-
-        "only": ["virtualbox"],
-
-        "token": "{{user `atlas_token`}}",
-
-        "artifact": "{{user `atlas_user`}}/{{user `name`}}",
-        "artifact_type": "virtualbox.image",
-        "metadata": {
-          "created_at": "{{timestamp}}",
-          "version": "{{user `version`}}.{{user `timestamp`}}"
+          "repository": "{{user `docker_user`}}/{{user `image_name`}}"
         }
       }
     ],
@@ -200,8 +153,8 @@
 
         "only": ["virtualbox"],
 
-        "output": "{{user `user_home`}}/boxes/virtualbox/{{user `atlas_user`}}/{{user `name`}}/{{user `name`}}.box",
-        "compression_level": 9,
+        "output": "{{user `vagrant_output_path`}}",
+        "compression_level": 6,
         "keep_input_artifact": true
       },
       {
@@ -211,7 +164,7 @@
 
         "token": "{{user `atlas_token`}}",
 
-        "artifact": "{{user `atlas_user`}}/{{user `name`}}",
+        "artifact": "{{user `atlas_user`}}/{{user `image_name`}}",
         "artifact_type": "vagrant.box",
         "metadata": {
           "created_at": "{{timestamp}}",
@@ -226,7 +179,7 @@
 
         "only": ["docker"],
 
-        "repository": "{{user `docker_user`}}/{{user `name`}}",
+        "repository": "{{user `docker_user`}}/{{user `image_name`}}",
         "tag": "{{user `version`}}.{{user `timestamp`}}"
       },
       {
@@ -234,7 +187,7 @@
 
         "only": ["docker"],
 
-        "repository": "{{user `docker_user`}}/{{user `name`}}",
+        "repository": "{{user `docker_user`}}/{{user `image_name`}}",
         "tag": "{{user `version`}}",
         "force": true
       },
@@ -243,7 +196,7 @@
 
         "only": ["docker"],
 
-        "repository": "{{user `docker_user`}}/{{user `name`}}",
+        "repository": "{{user `docker_user`}}/{{user `image_name`}}",
         "tag": "latest",
         "force": true
       },
@@ -253,15 +206,5 @@
         "only": ["docker"]
       }
     ]
-  ],
-
-  "push": {
-    "name": "{{user `atlas_user`}}/{{user `name`}}",
-    "token": "{{user `atlas_token`}}",
-    "include": [
-      "http/",
-      "scripts/"
-    ],
-    "vcs": false
-  }
+  ]
 }

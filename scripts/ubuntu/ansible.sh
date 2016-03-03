@@ -15,3 +15,6 @@ apt-get install -y libffi-dev libssl-dev
 pip install --upgrade pip
 pip install ansible
 pip install pyopenssl ndg-httpsclient pyasn1
+
+#nfs
+apt-get install -y nfs-common portmap

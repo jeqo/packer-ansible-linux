@@ -1,0 +1,74 @@
+{
+  "variables": {
+    "image_name": "ansible-redhat7",
+
+    "ks_path": "centos-7.1/ks.cfg",
+
+    "atlas_user": "",
+    "atlas_token": "{{env `ATLAS_TOKEN`}}",
+
+    "aws_access_key": "{{env `AWS_ACCESS_KEY`}}",
+    "aws_secret_key": "{{env `ÀWS_SECRET_KEY`}}",
+    "aws_source_ami": "ami-61bbf104",
+
+    "version": "7",
+    "timestamp": "{{isotime \"20060102150405\"}}"
+  },
+
+  "builders": [
+    {
+      "name": "aws",
+      "type": "amazon-ebs",
+
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+
+      "region": "us-east-1",
+      "source_ami": "{{user `aws_source_ami`}}",
+      "instance_type": "t2.micro",
+      "ssh_username": "ec2-user",
+      "ami_name": "{{user `image_name`}} {{timestamp}}",
+
+      "ssh_pty" : true
+    }
+  ],
+
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/redhat/ansible.sh"
+      ],
+      "environment_vars": [
+        "EPEL_REPO=http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm"
+      ],
+      "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "rm -rf /var/lib/yum/history/* /tmp/* /var/tmp/*"
+      ],
+      "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'"
+    }
+  ],
+
+  "post-processors": [
+    [
+      {
+        "type": "atlas",
+
+        "only": ["aws"],
+
+        "token": "{{user `atlas_token`}}",
+
+        "artifact": "{{user `atlas_user`}}/{{user `image_name`}}",
+        "artifact_type": "amazon.image",
+        "metadata": {
+          "created_at": "{{timestamp}}",
+          "version": "{{user `version`}}.{{user `timestamp`}}"
+        }
+      }
+    ]
+  ]
+}

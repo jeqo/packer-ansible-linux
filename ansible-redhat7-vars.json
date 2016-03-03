@@ -1,0 +1,11 @@
+{
+  "image_name": "ansible-redhat7",
+
+  "ks_path": "centos-7.1/ks.cfg",
+
+  "atlas_user": "jeqo",
+
+  "aws_source_ami": "ami-2051294a",
+
+  "version": "7"
+}

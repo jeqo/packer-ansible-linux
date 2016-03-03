@@ -1,9 +1,0 @@
-- name: packer-linux assistant
-  hosts: 127.0.0.1
-
-  vars:
-    template: ol7
-    iso: "{{ ansible_env.HOME }}/oracle/linux/installers/7/OracleLinux-R7-U2-Server-x86_64-dvd.iso"
-
-  tasks:
-    - shell: "packer build -force=true -only=docker -var iso_location={{ iso }} {{ template }}-ansible.json >> build.log"
